@@ -1,16 +1,32 @@
--- Create messages table with additional fields for React Native
-CREATE TABLE IF NOT EXISTS messages (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  sender_id TEXT NOT NULL,
-  receiver_id TEXT NOT NULL,
-  content TEXT NOT NULL,
-  message_type TEXT DEFAULT 'text' CHECK (message_type IN ('text', 'voice', 'image', 'file')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  read_at TIMESTAMP WITH TIME ZONE NULL,
-  delivered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  metadata JSONB DEFAULT '{}'::jsonb
+-- Enable pgcrypto for UUIDs
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Users table (for Clerk users)
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_id TEXT UNIQUE NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  username TEXT,
+  full_name TEXT,
+  avatar_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Index for user search
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+
+-- Messages table
+CREATE TABLE IF NOT EXISTS messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id UUID REFERENCES users(id),
+  receiver_id UUID REFERENCES users(id),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  read_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Index for fast message queries
+CREATE INDEX IF NOT EXISTS idx_messages_sender_receiver ON messages(sender_id, receiver_id);
 
 -- Create follows table
 CREATE TABLE IF NOT EXISTS follows (
@@ -30,8 +46,6 @@ CREATE TABLE IF NOT EXISTS user_status (
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_messages_sender_receiver ON messages(sender_id, receiver_id);
-CREATE INDEX IF NOT EXISTS idx_messages_receiver_sender ON messages(receiver_id, sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(receiver_id, read_at) WHERE read_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower_id);
