@@ -18,7 +18,12 @@ const nextConfig = {
         source: "/api/:path*",
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: process.env.NODE_ENV === "production"
+              ? "https://chitamrita.vercel.app"
+              : "http://localhost:8081, http://localhost:3000, https://localhost:8081"
+          },
           { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
           {
             key: "Access-Control-Allow-Headers",

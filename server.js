@@ -39,7 +39,9 @@ app.use(
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" ? ["exp://192.168.1.100:8081", "https://chitamrita.vercel.app"] : "*",
+    origin: process.env.NODE_ENV === "production"
+      ? ["exp://192.168.1.100:8081", "https://chitamrita.vercel.app"]
+      : ["http://localhost:3000", "http://localhost:8081", "https://localhost:8081", "exp://localhost:8081"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
