@@ -8,9 +8,9 @@ const rateLimit = require("express-rate-limit")
 require("dotenv").config()
 
 // Import routes
-const userRoutes = require("./routes/users")
-const followRoutes = require("./routes/follow")
-const messageRoutes = require("./routes/messages")
+const userRoutes = require("./api/users")
+const followRoutes = require("./api/follow")
+const messageRoutes = require("./api/messages")
 const { initializeSocket } = require("./services/socket")
 
 const app = express()

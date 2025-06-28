@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Follow API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .response {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔗 Follow API Test</h1>
+
+        <div class="form-group">
+            <label for="baseUrl">Base URL:</label>
+            <input type="text" id="baseUrl" value="http://localhost:3000/api" />
+        </div>
+
+        <div class="form-group">
+            <label for="token">Clerk Token:</label>
+            <textarea id="token" placeholder="Paste your Clerk session token here..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="followingId">User ID to Follow:</label>
+            <input type="text" id="followingId" placeholder="e.g., user_2abc123def456" />
+        </div>
+
+        <div class="form-group">
+            <label for="limit">Limit (for GET request):</label>
+            <input type="number" id="limit" value="10" min="1" max="100" />
+        </div>
+
+        <div class="form-group">
+            <label for="offset">Offset (for GET request):</label>
+            <input type="number" id="offset" value="0" min="0" />
+        </div>
+
+        <button onclick="testFollow()">🚀 Test Follow (POST)</button>
+        <button onclick="testGetFollowing()">📋 Get Following (GET)</button>
+        <button onclick="clearResponse()">🗑️ Clear Response</button>
+
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function makeRequest(url, options) {
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                return {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data,
+                    headers: Object.fromEntries(response.headers.entries())
+                };
+            } catch (error) {
+                return {
+                    error: error.message
+                };
+            }
+        }
+
+        function showResponse(result, isError = false) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'block';
+            responseDiv.className = `response ${isError ? 'error' : 'success'}`;
+
+            const timestamp = new Date().toLocaleString();
+            responseDiv.textContent = `[${timestamp}]\n${JSON.stringify(result, null, 2)}`;
+        }
+
+        async function testFollow() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const token = document.getElementById('token').value.trim();
+            const followingId = document.getElementById('followingId').value.trim();
+
+            if (!token) {
+                showResponse({ error: 'Please provide a Clerk token' }, true);
+                return;
+            }
+
+            if (!followingId) {
+                showResponse({ error: 'Please provide a user ID to follow' }, true);
+                return;
+            }
+
+            const result = await makeRequest(`${baseUrl}/follow`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    following_id: followingId
+                })
+            });
+
+            showResponse(result, result.error || result.status >= 400);
+        }
+
+        async function testGetFollowing() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const token = document.getElementById('token').value.trim();
+            const limit = document.getElementById('limit').value;
+            const offset = document.getElementById('offset').value;
+
+            if (!token) {
+                showResponse({ error: 'Please provide a Clerk token' }, true);
+                return;
+            }
+
+            const result = await makeRequest(`${baseUrl}/follow?limit=${limit}&offset=${offset}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            showResponse(result, result.error || result.status >= 400);
+        }
+
+        function clearResponse() {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'none';
+            responseDiv.textContent = '';
+        }
+
+        // Add some sample data for testing
+        document.addEventListener('DOMContentLoaded', function () {
+            // You can pre-fill with sample data for testing
+            // document.getElementById('token').value = 'your_sample_token_here';
+            // document.getElementById('followingId').value = 'user_sample123';
+        });
+    </script>
+</body>
+
+</html>

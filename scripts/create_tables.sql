@@ -28,13 +28,15 @@ CREATE TABLE IF NOT EXISTS messages (
 -- Index for fast message queries
 CREATE INDEX IF NOT EXISTS idx_messages_sender_receiver ON messages(sender_id, receiver_id);
 
--- Create follows table
+-- Create follows table for user follow relationships
+-- follower_id: Clerk user ID of the user who initiates the follow
+-- following_id: Clerk user ID of the user who is being followed
 CREATE TABLE IF NOT EXISTS follows (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  follower_id TEXT NOT NULL,
-  following_id TEXT NOT NULL,
+  follower_id TEXT NOT NULL, -- Clerk user ID of the follower
+  following_id TEXT NOT NULL, -- Clerk user ID of the user being followed
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(follower_id, following_id)
+  UNIQUE(follower_id, following_id) -- Prevents duplicate follows
 );
 
 -- Create user_status table for online/offline tracking
