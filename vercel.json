@@ -4,20 +4,28 @@
     {
       "src": "api/index.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "public/*",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api/index.js"
+      "dest": "api/index.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://localhost:8081, http://localhost:8081, http://localhost:3000, https://chitamrita.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
       "src": "/(.*)",
-      "dest": "public/$1"
+      "dest": "api/index.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "https://localhost:8081, http://localhost:8081, http://localhost:3000, https://chitamrita.vercel.app",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+        "Access-Control-Allow-Credentials": "true"
+      }
     }
   ],
   "headers": [
@@ -26,15 +34,19 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "*"
+          "value": "https://localhost:8081, http://localhost:8081, http://localhost:3000, https://chitamrita.vercel.app"
         },
         {
           "key": "Access-Control-Allow-Methods",
-          "value": "GET,POST,PUT,DELETE,OPTIONS"
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Authorization"
+          "value": "Content-Type, Authorization, X-Requested-With"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
         }
       ]
     }
